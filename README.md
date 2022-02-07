@@ -26,6 +26,8 @@ Installation can be done via GUI in Software & Updates - I used 470 on an NVIDIA
 ## Installing Azure-Kinect-Sensor-SDK ([Package Documentation](https://docs.microsoft.com/en-us/windows-server/administration/linux-package-repository-for-microsoft-software) | [GitHub](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/))
 **as of 2/4/22 microsoft have not released a binary for Ubuntu 20.04. To install SDK, below we implement a small workaround.**
 
+## install FFMPEG
+`sudo apt install ffmpeg`
 
 
 ### UBUNTU 18.04: 
@@ -77,12 +79,6 @@ https://www.anaconda.com/products/individual#linux
 `bash ~/Downloads/Anaconda[VERSION].sh`
 
 
-## Install jupyter
-
-`conda install jupyter`
-
-(open a new terminal window) 
-
 ## Create a new conda environment
 
 `conda create -n kinect_acquisition python=3.8`
@@ -97,6 +93,16 @@ Navigate to the main direct of this package (the one with `setup.py` in it)
 
 `pip3 install -r requirements.txt`
 
+
+## Install jupyter
+
+`conda install jupyter`
+
+**If Jupyter is already installed:** Add this environment as a seperate jupyter kernel 
+
+`conda install -c anaconda ipykernel`
+`python -m ipykernel install --user --name=kinect_acquisition`
+
 ## start a jupyter notebook
 
 **Optional:** Run notebook in tmux  
@@ -109,4 +115,13 @@ Start the notebook (either in the tmux session, or not)
 
 (tmux session can be quit with `CTRL + b' then 'd')
 
-# Acquisition
+
+
+
+# Quickstart: acquisition
+
+Acquisition is run through the `start_recording` function, which can be found in the `run_azures` Jupyter notebook.
+
+Briefly, for each camera, a k4a object is created, and a seperate acquisition process running the function `capture_from_azure ` is opened. The function loops continuously over a set duration, sampling depth, ir, and camera data. Synchronization over cameras is handled by a master-subordinate system, offsetting sampling between each camera. 
+
+![Acqusition pipeline](docs/files/Azure-acquisition.png)
