@@ -110,7 +110,7 @@ Navigate to the main direct of this package (the one with `setup.py` in it)
 **Optional:** Run notebook in tmux  
 `sudo apt install tmux`
 
-``tmux -new acqusitionjupyter`
+`tmux -new acqusitionjupyter`
 
 Start the notebook (either in the tmux session, or not)
 `jupyter notebook --no-browser --port=[YOUR PORT] /path/to/repository/`
