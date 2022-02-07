@@ -1,10 +1,8 @@
-.. Azure_Acquisition_Template documentation master file, created by
-   sphinx-quickstart.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Azure Acquisition Template
+==============================
 
-Azure_Acquisition_Template documentation!
-==============================================
+A template for acquiring  data on an Azure Kinect rig.
+
 
 Contents:
 
@@ -12,8 +10,7 @@ Contents:
    :maxdepth: 2
 
    getting-started
-   commands
-
+   api
 
 
 Indices and tables
