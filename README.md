@@ -94,6 +94,10 @@ Navigate to the main direct of this package (the one with `setup.py` in it)
 `pip3 install -r requirements.txt`
 
 
+## Install pyk4a
+
+`pip3 install pyk4a`
+
 ## Install jupyter
 
 `conda install jupyter`
@@ -111,7 +115,7 @@ Navigate to the main direct of this package (the one with `setup.py` in it)
 ``tmux -new acqusitionjupyter`
 
 Start the notebook (either in the tmux session, or not)
-`jupyter notebook --no-browser --port=[YOUR PORT] \path\to\repository\`
+`jupyter notebook --no-browser --port=[YOUR PORT] /path/to/repository/`
 
 (tmux session can be quit with `CTRL + b' then 'd')
 
