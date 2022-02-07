@@ -12,9 +12,3 @@ Contents:
    getting-started
    api
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
