@@ -1,4 +1,4 @@
-Azure_Acquisition_Template
+Azure Acquisition Template
 ==============================
 
 A template for acquiring  data on an Azure Kinect rig.
