@@ -41,8 +41,8 @@ install FFMPEG
 
    $ sudo apt install ffmpeg
 
-Installing Azure-Kinect-Sensor-SDK (`Package Documentation`_ \| `GitHub`_)
---------------------------------------------------------------------------
+Installing Azure-Kinect-Sensor-SDK 
+----------------------------------
 
 **as of 2/4/22 microsoft have not released a binary for Ubuntu 20.04. To
 install SDK, below we implement a small workaround.**

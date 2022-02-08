@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 
-import foo
+import kinectacq
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -82,7 +82,7 @@ def linkcode_resolve(domain, info):
     file = inspect.getsourcefile(obj)
     if file is None:
         return None
-    package_dir = os.path.dirname(foo.__file__)
+    package_dir = os.path.dirname(kinectacq.__file__)
     if os.path.commonpath([file, package_dir]) != package_dir:
         return None
     file = os.path.relpath(file, start=package_dir)
@@ -92,4 +92,4 @@ def linkcode_resolve(domain, info):
     last_line_no = first_line_no + len(lines) - 1
     line_spec = f"#L{first_line_no}-L{last_line_no}"
 
-    return ""  # f"{foo.__url__}/blob/{_revision}/src/foo/{file}/{line_spec}"
+    return ""
