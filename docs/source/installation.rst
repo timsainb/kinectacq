@@ -166,7 +166,10 @@ start a jupyter notebook
    (kinect_acquisition)$ sudo apt install tmux
    (kinect_acquisition)$ tmux -new acqusitionjupyter
 
-Start the notebook (either in the tmux session, or not) \`jupyt
+Start the notebook (either in the tmux session, or not) 
 
-.. _Package Documentation: https://docs.microsoft.com/en-us/windows-server/administration/linux-package-repository-for-microsoft-software
-.. _GitHub: https://github.com/microsoft/Azure-Kinect-Sensor-SDK/
+.. code-block:: console
+
+   (kinect_acquisition)$  jupyter notebook --no-browser --port=[YOUR PORT] /path/to/repository/
+
+(tmux session can be quit with `CTRL + b' then 'd')
