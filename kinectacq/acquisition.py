@@ -1,3 +1,7 @@
+"""
+Acquisition - functions for recording from azure
+"""
+
 import datetime, subprocess, numpy as np, time, sys
 from multiprocessing import Process, Queue
 from pyk4a import (
