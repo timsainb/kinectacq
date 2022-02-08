@@ -4,7 +4,7 @@ API
 .. autosummary::
    :toctree: generated
 
-   kinectacq
+   kinectacq.acquisition
 
 Useful Functions
 ----------------
@@ -19,4 +19,4 @@ TEST
 .. autosummary::
    :toctree: generated
 
-   kinectacq.acquisition
+   kinectacq
