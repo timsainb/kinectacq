@@ -30,3 +30,10 @@ Module :mod:`kinectacq.acquisition`
 .. automodule:: kinectacq.acquisition
     .. autofunction:: testfcn
     .. autofunction:: capture_from_azure
+
+
+TEST3
+-----
+
+.. automodule:: kinectacq.acquisition
+   :members:
