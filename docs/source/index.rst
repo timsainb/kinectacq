@@ -1,8 +1,15 @@
-.. include:: ../../README.rst
+Welcome to kinectacq documentation!
+===================================
+
+A template for acquiring  data on an Azure Kinect rig. 
+
+This template is a work in progress. 
+
+Contents
+--------
 
 .. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: Contents
 
+   installation
+   usage
    api
