@@ -17,46 +17,9 @@ from kinectacq.paths import ensure_dir
 
 
 def testfcn(x):
-    """
-    Parametric UMAP subclassing UMAP-learn, based on keras/tensorflow.
-    There is also a non-parametric implementation contained within to compare
-    with the base non-parametric implementation.
-    Parameters
-    ----------
-    optimizer : tf.keras.optimizers, optional
-        The tensorflow optimizer used for embedding, by default None
-    batch_size : int, optional
-        size of batch used for batch training, by default None
-    dims :  tuple, optional
-        dimensionality of data, if not flat (e.g. (32x32x3 images for ConvNet), by default None
-    encoder : tf.keras.Sequential, optional
-        The encoder Keras network
-    decoder : tf.keras.Sequential, optional
-        the decoder Keras network
-    parametric_embedding : bool, optional
-        Whether the embedder is parametric or non-parametric, by default True
-    parametric_reconstruction : bool, optional
-        Whether the decoder is parametric or non-parametric, by default False
-    parametric_reconstruction_loss_fcn : bool, optional
-        What loss function to use for parametric reconstruction, by default tf.keras.losses.BinaryCrossentropy
-    parametric_reconstruction_loss_weight : float, optional
-        How to weight the parametric reconstruction loss relative to umap loss, by default 1.0
-    autoencoder_loss : bool, optional
-        [description], by default False
-    reconstruction_validation : array, optional
-        validation X data for reconstruction loss, by default None
-    loss_report_frequency : int, optional
-        how many times per epoch to report loss, by default 1
-    n_training_epochs : int, optional
-        number of epochs to train for, by default 1
-    global_correlation_loss_weight : float, optional
-        Whether to additionally train on correlation of global pairwise relationships (>0), by default 0
-    run_eagerly : bool, optional
-        Whether to run tensorflow eagerly
-    keras_fit_kwargs : dict, optional
-        additional arguments for model.fit (like callbacks), by default {}
-    """
-    return
+    """Test"""
+    a = 1
+    return a + 1
 
 
 def capture_from_azure(

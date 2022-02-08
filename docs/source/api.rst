@@ -1,7 +1,14 @@
-API
-===
+=============
+API Reference
+=============
 
-.. autosummary::
-   :toctree: generated
+Package :mod:`kinectacq`
+==================
 
-   lumache
+Module :mod:`kinectacq.acquisition`
+---------------------
+
+.. automodule:: kinectacq.acquisition
+   :members:
+   :undoc-members:
+   :show-inheritance:

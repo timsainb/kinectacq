@@ -13,5 +13,3 @@ Contents
    installation
    usage
    api
-   api2
-   acquisition
