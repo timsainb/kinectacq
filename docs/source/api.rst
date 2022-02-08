@@ -5,10 +5,10 @@ API Reference
 Package :mod:`kinectacq`
 ========================
 
-Module :mod:`kinectacq.acquisition`
------------------------------------
+Module :mod:`kinectacq.bar`
+---------------------------
 
-.. automodule:: kinectacq.acquisition
+.. automodule:: kinectacq.bar
    :members:
    :undoc-members:
    :show-inheritance:
