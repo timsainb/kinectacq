@@ -4,13 +4,18 @@ Acquisition - functions for recording from azure
 
 import datetime, subprocess, numpy as np, time, sys
 from multiprocessing import Process, Queue
-from pyk4a import (
-    PyK4A,
-    Config,
-    ColorResolution,
-    DepthMode,
-    WiredSyncMode,
-)
+
+try:
+    from pyk4a import (
+        PyK4A,
+        Config,
+        ColorResolution,
+        DepthMode,
+        WiredSyncMode,
+    )
+except:
+    print("pyk4a not installed")
+
 from kinectacq.video_io import write_images
 from kinectacq.visualization import display_images
 from kinectacq.paths import ensure_dir

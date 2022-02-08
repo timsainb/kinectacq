@@ -1,12 +1,5 @@
 import datetime, subprocess, numpy as np, cv2, time, sys
 from multiprocessing import Process, Queue
-from pyk4a import (
-    PyK4A,
-    Config,
-    ColorResolution,
-    DepthMode,
-    WiredSyncMode,
-)
 
 
 def get_number_of_frames(filepath):
