@@ -5,3 +5,7 @@ API
    :toctree: generated
 
    kinectacq
+
+
+.. automodule:: kinectacq.acquisition
+   :members:

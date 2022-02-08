@@ -1,7 +1,9 @@
 Welcome to kinectacq documentation!
 ===================================
 
-A template for acquiring  data on an Azure Kinect rig.
+A template for acquiring  data on an Azure Kinect rig. 
+
+This template is a work in progress. 
 
 Contents
 --------

@@ -1,4 +1,4 @@
-Quickstart: acquisition
+Usage
 =======================
 
 Acquisition is run through the ``start_recording`` function, which can
@@ -10,7 +10,7 @@ opened. The function loops continuously over a set duration, sampling
 depth, ir, and camera data. Synchronization over cameras is handled by a
 master-subordinate system, offsetting sampling between each camera.
 
-.. figure:: docs/files/Azure-acquisition.png
+.. figure:: ../files/Azure-acquisition.png
    :alt: Acqusition pipeline
 
    Acqusition pipeline
