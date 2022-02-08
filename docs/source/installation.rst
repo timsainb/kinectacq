@@ -129,30 +129,30 @@ in it)
 
 .. code-block:: console
 
-   (kinect_acquisition) $ python setup.py develop
-   (kinect_acquisition) $ pip3 install -r requirements.txt
+   (kinect_acquisition)$ python setup.py develop
+   (kinect_acquisition)$ pip3 install -r requirements.txt
 
 Install pyk4a
 -------------
 
 .. code-block:: console
 
-   (kinect_acquisition) $ pip3 install pyk4a
+   (kinect_acquisition)$ pip3 install pyk4a
 
 Install jupyter
 ---------------
 
 .. code-block:: console
 
-   (kinect_acquisition) $ conda install jupyter
+   (kinect_acquisition)$ conda install jupyter
 
 **If Jupyter is already installed:** Add this environment as a seperate
 jupyter kernel
 
 .. code-block:: console
 
-   (kinect_acquisition) $ conda install -c anaconda ipykernel
-   (kinect_acquisition) $ `python -m ipykernel install --user --name=kinect_acquisition
+   (kinect_acquisition)$ conda install -c anaconda ipykernel
+   (kinect_acquisition)$ python -m ipykernel install --user --name=kinect_acquisition
 
 start a jupyter notebook
 ------------------------
@@ -160,8 +160,8 @@ start a jupyter notebook
 | **Optional:** Run notebook in tmux
 .. code-block:: console
 
-   (kinect_acquisition) $ sudo apt install tmux
-   (kinect_acquisition) $ tmux -new acqusitionjupyter
+   (kinect_acquisition)$ sudo apt install tmux
+   (kinect_acquisition)$ tmux -new acqusitionjupyter
 
 Start the notebook (either in the tmux session, or not) \`jupyt
 
