@@ -13,3 +13,4 @@ Contents
    installation
    usage
    api
+   api2

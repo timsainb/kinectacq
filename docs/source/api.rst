@@ -37,3 +37,13 @@ TEST3
 
 .. automodule:: kinectacq.acquisition
    :members:
+
+
+TEST4
+-----
+
+.. automodule:: kinectacq
+   :imported-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
