@@ -30,6 +30,8 @@ numpydoc_xref_aliases = {
     "array_like": ":term:`numpy:array_like`",
 }
 
+project = "kinectacq"
+
 master_doc = "index"
 
 html_theme = "sphinx_rtd_theme"
