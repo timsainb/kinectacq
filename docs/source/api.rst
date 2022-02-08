@@ -6,6 +6,8 @@ API
 
    kinectacq
 
+Useful Functions
+----------------
 
 .. automodule:: kinectacq.acquisition
    :members:
