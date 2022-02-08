@@ -5,7 +5,7 @@ Welcome to My Module's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: kinectacq
+.. automodule:: kinectacq.main
     :members:
 
 
