@@ -33,11 +33,6 @@ Install OpenGL
 
    $ sudo apt-get install freeglut3-dev
 
-Installing Azure-Kinect-Sensor-SDK (`Package Documentation`_ \| `GitHub`_)
---------------------------------------------------------------------------
-
-**as of 2/4/22 microsoft have not released a binary for Ubuntu 20.04. To
-install SDK, below we implement a small workaround.**
 
 install FFMPEG
 --------------
@@ -45,6 +40,14 @@ install FFMPEG
 .. code-block:: console
 
    $ sudo apt install ffmpeg
+
+Installing Azure-Kinect-Sensor-SDK (`Package Documentation`_ \| `GitHub`_)
+--------------------------------------------------------------------------
+
+**as of 2/4/22 microsoft have not released a binary for Ubuntu 20.04. To
+install SDK, below we implement a small workaround.**
+
+
 
 UBUNTU 18.04:
 ~~~~~~~~~~~~~
