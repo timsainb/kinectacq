@@ -20,3 +20,11 @@ TEST
    :toctree: generated
 
    kinectacq
+
+
+TEST2
+-----
+
+Module :mod:`kinectacq.acquisition`
+---------------------------------
+.. automodule:: kinectacq.acquisition
