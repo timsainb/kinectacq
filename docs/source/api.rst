@@ -47,3 +47,11 @@ TEST4
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+TEST5
+-----
+.. autosummary::
+   :toctree: generated
+
+   lumache
