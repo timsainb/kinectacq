@@ -23,7 +23,7 @@ docs_requirements = docs_requirements_file.read_text().splitlines()
 setuptools.setup(
     name="kinectacq",
     version="0.0.9",
-    description="Kinect acquisition template",
+    description="A Python package test2",
     long_description="",
     url="",
     author="",
