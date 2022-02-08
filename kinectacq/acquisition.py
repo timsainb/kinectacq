@@ -13,7 +13,16 @@ from kinectacq.paths import ensure_dir
 
 
 def capture_from_azure(
-    k4a, filename_prefix, recording_length, display_frames=False, display_time=False
+    k4a,
+    filename_prefix,
+    recording_length,
+    display_frames=False,
+    display_time=False,
+    depth_function=None,
+    ir_function=None,
+    display_resolution_downsample=2,
+    display_frequency=2,
+    display_time_frequency=15,
 ):
     """Continuously captures data from Azure Kinect camera and writes to frames.
 
@@ -24,6 +33,9 @@ def capture_from_azure(
         recording_length (float): [recording duration (seconds)]
         display_frames (bool, optional): Whether to display frames. Defaults to False.
         display_time (bool, optional): Whether to output time. Defaults to False.
+        display_resolution_downsample (int, optional): How much to downsample display resolution. Defaults to 2
+        display_frequency (int, optional): How frequently to display frames. Defaults to 2
+        display_time_frequency (int, optional): How frequently to display time. Defaults to 15
     """
     # initialize the queue to write images to videos
     image_queue = Queue()
@@ -65,25 +77,31 @@ def capture_from_azure(
             ir = capture.ir.astype(np.uint16)
 
             # preprocess depth data
-            # TODO add as seperate function
-            # depth = np.clip((depth - 435) * (depth < 690), 0, 255).astype(np.uint8)
+            if depth_function is not None:
+                depth = depth_function(depth)
 
             # preprocess IR data
-            # TODO add as seperate function
-            # ir = np.clip(ir + 100, 160, 5500)
-            # ir = ((np.log(ir) - 5) * 70).astype(np.uint8)
+            if ir_function is not None:
+                ir = ir_function(ir)
 
             # add IR and depth data to image queue, to save
             image_queue.put((ir, depth))
 
             # every n frames, write to display
             # TODO add freq as variable
-            if display_frames and count % 2 == 0:
-                display_queue.put((ir[::2, ::2],))
+            if display_frames and count % display_frequency == 0:
+                display_queue.put(
+                    (
+                        ir[
+                            ::display_resolution_downsample,
+                            ::display_resolution_downsample,
+                        ],
+                    )
+                )
 
             # every n frames, write the time on the notebook
             # TODO rewrite as status bar
-            if display_time and count % 15 == 0:
+            if display_time and count % display_time_frequency == 0:
                 sys.stdout.write(
                     "\rRecorded "
                     + repr(int(time.time() - start_time))
@@ -140,6 +158,8 @@ def start_recording(
             },
         }
     },
+    depth_function=None,
+    ir_function=None,
 ):
     """
     Runs a recording session by running a subprocess for each camera.
@@ -147,6 +167,8 @@ def start_recording(
         filename_prefix (str):
         recording_length (int):
         devices (dict): Dictionary of config info for each device
+        depth_function (function): Function for processing depth data
+        ir_function (function): Function for processing IR data
     """
 
     process_list = []
@@ -185,6 +207,8 @@ def start_recording(
                     "display_time": devices[device_name]["process_kwargs"][
                         "display_time"
                     ],
+                    "depth_function": depth_function,
+                    "ir_function": ir_function,
                 },
             )
         )
