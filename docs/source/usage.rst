@@ -1,33 +1,16 @@
-Usage
-=====
+Quickstart: acquisition
+=======================
 
-.. _installation:
+Acquisition is run through the ``start_recording`` function, which can
+be found in the ``run_azures`` Jupyter notebook.
 
-Installation
-------------
+Briefly, for each camera, a k4a object is created, and a seperate
+acquisition process running the function ``capture_from_azure`` is
+opened. The function loops continuously over a set duration, sampling
+depth, ir, and camera data. Synchronization over cameras is handled by a
+master-subordinate system, offsetting sampling between each camera.
 
-To use Lumache, first install it using pip:
+.. figure:: docs/files/Azure-acquisition.png
+   :alt: Acqusition pipeline
 
-.. code-block:: console
-
-   (.venv) $ pip install lumache
-
-Creating recipes
-----------------
-
-To retrieve a list of random ingredients,
-you can use the ``lumache.get_random_ingredients()`` function:
-
-.. autofunction:: lumache.get_random_ingredients
-
-The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-will raise an exception.
-
-.. autoexception:: lumache.InvalidKindError
-
-For example:
-
->>> import lumache
->>> lumache.get_random_ingredients()
-['shells', 'gorgonzola', 'parsley']
+   Acqusition pipeline

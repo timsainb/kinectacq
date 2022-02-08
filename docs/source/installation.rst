@@ -9,7 +9,10 @@ Install NVIDIA drivers
 
 Check that you have a GPU installed on the device
 
-``sudo lshw -C display``
+
+.. code-block:: console
+
+   $ sudo lshw -C display
 
 Installation can be done via GUI in Software & Updates - I used 470 on
 an NVIDIA GeForce GTX 760)
@@ -19,12 +22,16 @@ an NVIDIA GeForce GTX 760)
 Install OpenSSL
 ---------------
 
-``sudo apt-get install libssl-dev``
+.. code-block:: console
+
+   $ sudo apt-get install libssl-dev
 
 Install OpenGL
 --------------
 
-``sudo apt-get install freeglut3-dev``
+.. code-block:: console
+
+   $ sudo apt-get install freeglut3-dev
 
 Installing Azure-Kinect-Sensor-SDK (`Package Documentation`_ \| `GitHub`_)
 --------------------------------------------------------------------------
@@ -35,34 +42,37 @@ install SDK, below we implement a small workaround.**
 install FFMPEG
 --------------
 
-``sudo apt install ffmpeg``
+.. code-block:: console
+
+   $ sudo apt install ffmpeg
 
 UBUNTU 18.04:
 ~~~~~~~~~~~~~
 
-``curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc``
+.. code-block:: console
 
-``sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod``
+   $ curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+
+   $ sudo apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
 
 UBUNTU 20.04 (workaround, check the github page for the latest):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - sudo apt-add-repository https://packages.microsoft.com/ubuntu/18.04/prod``
+.. code-block:: console
 
-``curl -sSL https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft-prod.list``
-
-``curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -``
+   $ curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - sudo apt-add-repository https://packages.microsoft.com/ubuntu/18.04/prod
+   $ curl -sSL https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft-prod.list
+   $ curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 
 BOTH: Install libraries
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-``sudo apt-get update``
+.. code-block:: console
 
-``sudo apt install libk4a1.3-dev``
-
-``sudo apt install libk4abt1.0-dev``
-
-``sudo apt install k4a-tools=1.3.0``
+   $ sudo apt-get update
+   $ sudo apt install libk4a1.3-dev
+   $ sudo apt install libk4abt1.0-dev
+   $ sudo apt install k4a-tools=1.3.0
 
 Install Depth Engine
 ~~~~~~~~~~~~~~~~~~~~
@@ -72,21 +82,26 @@ Install Depth Engine
 Setup udev rules
 ~~~~~~~~~~~~~~~~
 
-``wget https://raw.githubusercontent.com/microsoft/Azure-Kinect-Sensor-SDK/develop/scripts/99-k4a.rules``
+.. code-block:: console
 
-``sudo mv 99-k4a.rules /etc/udev/rules.d/``
+   $ wget https://raw.githubusercontent.com/microsoft/Azure-Kinect-Sensor-SDK/develop/scripts/99-k4a.rules``
+   $ sudo mv 99-k4a.rules /etc/udev/rules.d/
 
 Check that the install worked:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, unplug and re-plug the camera.
 
-``k4aviewer``
+.. code-block:: console
+
+   $ k4aviewer
 
 Install git
 -----------
 
-``sudo apt-get install git-all``
+.. code-block:: console
+
+   $ sudo apt-get install git-all
 
 Install anaconda
 ----------------
@@ -94,14 +109,17 @@ Install anaconda
 Download the anaconda for linux installer:
 https://www.anaconda.com/products/individual#linux
 
-``bash ~/Downloads/Anaconda[VERSION].sh``
+.. code-block:: console
+
+   $ bash ~/Downloads/Anaconda[VERSION].sh
 
 Create a new conda environment
 ------------------------------
 
-``conda create -n kinect_acquisition python=3.8``
+.. code-block:: console
 
-``conda activate kinect_acquisition``
+   $ conda create -n kinect_acquisition python=3.8
+   $ conda activate kinect_acquisition
 
 Install this package
 --------------------
@@ -109,33 +127,41 @@ Install this package
 Navigate to the main direct of this package (the one with ``setup.py``
 in it)
 
-``python setup.py develop``
+.. code-block:: console
 
-``pip3 install -r requirements.txt``
+   (kinect_acquisition) $ python setup.py develop
+   (kinect_acquisition) $ pip3 install -r requirements.txt
 
 Install pyk4a
 -------------
 
-``pip3 install pyk4a``
+.. code-block:: console
+
+   (kinect_acquisition) $ pip3 install pyk4a
 
 Install jupyter
 ---------------
 
-``conda install jupyter``
+.. code-block:: console
+
+   (kinect_acquisition) $ conda install jupyter
 
 **If Jupyter is already installed:** Add this environment as a seperate
 jupyter kernel
 
-``conda install -c anaconda ipykernel``
-``python -m ipykernel install --user --name=kinect_acquisition``
+.. code-block:: console
+
+   (kinect_acquisition) $ conda install -c anaconda ipykernel
+   (kinect_acquisition) $ `python -m ipykernel install --user --name=kinect_acquisition
 
 start a jupyter notebook
 ------------------------
 
 | **Optional:** Run notebook in tmux
-| ``sudo apt install tmux``
+.. code-block:: console
 
-``tmux -new acqusitionjupyter``
+   (kinect_acquisition) $ sudo apt install tmux
+   (kinect_acquisition) $ tmux -new acqusitionjupyter
 
 Start the notebook (either in the tmux session, or not) \`jupyt
 
