@@ -173,4 +173,6 @@ Start the notebook (either in the tmux session, or not)
 
    (kinect_acquisition)$ jupyter notebook --no-browser --port=[YOUR PORT] /path/to/repository/
 
-(tmux session can be quit with `CTRL + b' then 'd')
+(tmux session can be quit with 'CTRL + b' then 'd')
+
+
