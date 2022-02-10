@@ -23,8 +23,6 @@ Module :mod:`kinectacq.video_io`
    :show-inheritance:
    
 
-   
-
 Module :mod:`kinectacq.paths`
 ---------------------------
 
