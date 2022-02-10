@@ -5,3 +5,4 @@ sphinxcontrib-napoleon
 
 opencv-python
 pathlib2
+pyk4a
