@@ -5,7 +5,6 @@ import os
 import subprocess
 import sys
 
-import kinectacq
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -89,6 +88,9 @@ def linkcode_resolve(domain, info):
     file = inspect.getsourcefile(obj)
     if file is None:
         return None
+
+    import kinectacq
+
     package_dir = os.path.dirname(kinectacq.__file__)
     if os.path.commonpath([file, package_dir]) != package_dir:
         return None
