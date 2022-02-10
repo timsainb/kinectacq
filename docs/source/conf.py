@@ -89,9 +89,9 @@ def linkcode_resolve(domain, info):
     if file is None:
         return None
 
-    import kinectacq
+    from kinectacq import __file__ as kinect_file
 
-    package_dir = os.path.dirname(kinectacq.__file__)
+    package_dir = os.path.dirname(kinect_file)
     if os.path.commonpath([file, package_dir]) != package_dir:
         return None
     file = os.path.relpath(file, start=package_dir)
