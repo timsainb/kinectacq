@@ -1,5 +1,3 @@
-from . import bar
-
 from . import acquisition
 from . import paths
 from . import video_io

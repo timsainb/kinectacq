@@ -40,12 +40,3 @@ Module :mod:`kinectacq.visualization`
    :undoc-members:
    :show-inheritance:
    
-
-   Module :mod:`kinectacq.bar`
----------------------------
-
-.. automodule:: kinectacq.bar
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   
