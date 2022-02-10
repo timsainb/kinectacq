@@ -7,6 +7,7 @@ import numpy as np
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_DIR / "data"
 
+
 def ensure_dir(file_path):
     """create a safely nested folder"""
     if type(file_path) == str:
@@ -29,8 +30,14 @@ def ensure_dir(file_path):
 
 
 def most_recent_subdirectory(dataset_loc):
-    """return the subdirectory that has been generated most
-    recently with the "%Y-%m-%d_%H-%M-%S" time scheme used in AVGN
+    """eturn the subdirectory that has been generated most
+    recently with the "%Y-%m-%d_%H-%M-%S" time scheme.
+
+    Args:
+        dataset_loc (pathlib2.Path): Path to directory of folders
+
+    Returns:
+        [type]: [description]
     """
     subdir_list = list((dataset_loc).iterdir())
     directory_dates = [

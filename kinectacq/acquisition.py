@@ -19,12 +19,6 @@ from kinectacq.visualization import display_images
 from kinectacq.paths import ensure_dir
 
 
-def testfcn(x):
-    """Test"""
-    a = 1
-    return a + 1
-
-
 def capture_from_azure(
     k4a,
     filename_prefix,
@@ -175,9 +169,10 @@ def start_recording(
     ir_function=None,
 ):
     """Runs a recording session by running a subprocess for each camera.
+
     Args:
-        filename_prefix (str):
-        recording_length (int):
+        filename_prefix (str): Prefix of filename
+        recording_length (int): Duration to record (seconds)
         devices (dict): Dictionary of config info for each device
         depth_function (function): Function for processing depth data
         ir_function (function): Function for processing IR data
