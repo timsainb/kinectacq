@@ -206,8 +206,7 @@ def read_frames(
     slicecrc=1,
     get_cmd=False,
 ):
-    """
-    Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
+    """Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
     Args:
         filename (str): filename to get frames from
         frames (list or 1d numpy array): list of frames to grab
@@ -273,8 +272,8 @@ def read_color_frames(
     slicecrc=1,
     get_cmd=False,
 ):
-    """
-    Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
+    """Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
+
     Args:
         filename (str): filename to get frames from
         frames (list or 1d numpy array): list of frames to grab

@@ -5,20 +5,14 @@ Acquisition - functions for recording from azure
 import datetime, subprocess, numpy as np, time, sys
 from multiprocessing import Process, Queue
 
-try:
-    from pyk4a import (
-        PyK4A,
-        Config,
-        ColorResolution,
-        DepthMode,
-        WiredSyncMode,
-    )
-except:
-    # for readthedocs
-    print("pyk4a not installed")
-    from unittest import mock
+from pyk4a import (
+    PyK4A,
+    Config,
+    ColorResolution,
+    DepthMode,
+    WiredSyncMode,
+)
 
-    sys.modules["pyk4a"] = mock.Mock()
 
 from kinectacq.video_io import write_images
 from kinectacq.visualization import display_images

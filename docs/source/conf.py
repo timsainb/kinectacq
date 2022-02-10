@@ -17,6 +17,8 @@ extensions = [
     "sphinxcontrib.napoleon",
 ]
 
+autodoc_mock_imports = ["pyk4a"]
+
 autodoc_typehints = "none"
 
 intersphinx_mapping = {
