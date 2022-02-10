@@ -207,6 +207,7 @@ def read_frames(
     get_cmd=False,
 ):
     """Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
+
     Args:
         filename (str): filename to get frames from
         frames (list or 1d numpy array): list of frames to grab
@@ -331,6 +332,7 @@ def read_color_frames(
 def write_images(image_queue, filename_prefix):
     """Writes images from a multiprocessing queue to a video file
     using the write_frames function.
+
     Args:
         image_queue ([type]): Multiprocessing queue
         filename_prefix ([type]): data storage location

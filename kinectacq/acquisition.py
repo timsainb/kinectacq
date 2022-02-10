@@ -174,8 +174,7 @@ def start_recording(
     depth_function=None,
     ir_function=None,
 ):
-    """
-    Runs a recording session by running a subprocess for each camera.
+    """Runs a recording session by running a subprocess for each camera.
     Args:
         filename_prefix (str):
         recording_length (int):
