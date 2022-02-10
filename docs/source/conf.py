@@ -14,6 +14,7 @@ extensions = [
     "sphinx.ext.linkcode",
     "sphinx.ext.mathjax",
     "numpydoc",
+    "sphinxcontrib.napoleon",
 ]
 
 autodoc_typehints = "none"

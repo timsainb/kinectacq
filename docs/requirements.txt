@@ -1,6 +1,7 @@
 sphinx
 sphinx-rtd-theme
 numpydoc
+sphinxcontrib-napoleon
 
 opencv-python
 pathlib2

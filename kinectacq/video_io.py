@@ -28,6 +28,7 @@ def write_frames(
     frame_size=None,
     get_cmd=False,
 ):
+
     """Write frames to avi file using the ffv1 lossless encoder
 
     Args:
