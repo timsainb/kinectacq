@@ -30,6 +30,8 @@ def capture_from_azure(
     display_resolution_downsample=2,
     display_frequency=2,
     display_time_frequency=15,
+    video_dtype=np.uint8,
+    write_frames_kwargs={},
 ):
     """Continuously captures data from Azure Kinect camera and writes to frames.
 
@@ -46,7 +48,10 @@ def capture_from_azure(
     """
     # initialize the queue to write images to videos
     image_queue = Queue()
-    write_process = Process(target=write_images, args=(image_queue, filename_prefix))
+    write_process = Process(
+        target=write_images,
+        args=(image_queue, filename_prefix, video_dtype, write_frames_kwargs),
+    )
     write_process.start()
 
     # Initialize the queue to display images on screen
@@ -165,6 +170,17 @@ def start_recording(
             },
         }
     },
+    video_dtype=np.uint8,
+    write_frames_kwargs={
+        "codec": "ffv1",
+        "crf": 14,
+        "threads": 6,
+        "fps": 30,
+        "slices": 24,
+        "slicecrc": 1,
+        "frame_size": None,
+        "get_cmd": False,
+    },
     depth_function=None,
     ir_function=None,
 ):
@@ -216,6 +232,8 @@ def start_recording(
                     ],
                     "depth_function": depth_function,
                     "ir_function": ir_function,
+                    "video_dtype": video_dtype,
+                    "write_frames_kwargs": write_frames_kwargs,
                 },
             )
         )

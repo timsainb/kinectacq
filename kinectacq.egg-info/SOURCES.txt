@@ -1,0 +1,14 @@
+LICENSE
+README.md
+setup.py
+kinectacq/__init__.py
+kinectacq/acquisition.py
+kinectacq/paths.py
+kinectacq/video_io.py
+kinectacq/visualization.py
+kinectacq.egg-info/PKG-INFO
+kinectacq.egg-info/SOURCES.txt
+kinectacq.egg-info/dependency_links.txt
+kinectacq.egg-info/not-zip-safe
+kinectacq.egg-info/requires.txt
+kinectacq.egg-info/top_level.txt
