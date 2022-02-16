@@ -127,7 +127,13 @@ Create a new conda environment
 Install this package
 --------------------
 
-Navigate to the main direct of this package (the one with ``setup.py``
+Download the package (first, navigate to the directory you want to install in): 
+
+.. code-block:: console
+
+   (kinect_acquisition)$ git clone https://github.com/timsainb/kinectacq.git
+
+Navigate to the main directory of this package (the one with ``setup.py``
 in it)
 
 .. code-block:: console
@@ -160,18 +166,19 @@ jupyter kernel
 start a jupyter notebook
 ------------------------
 
-**Optional:** Run notebook in tmux
+**Optional:** Run notebook in tmux. 
+Tmux allows you to leave the notebook running in the background (like ``screen`` or ``nohup``). With tmux, you can close and reenter your jupyter session at will. 
 
 .. code-block:: console
 
    (kinect_acquisition)$ sudo apt install tmux
    (kinect_acquisition)$ tmux -new acqusitionjupyter
 
-Start the notebook (either in the tmux session, or not) 
+Start the notebook (either in the tmux session, or not). Switch the port number (8888) with the port of your choosing. 
 
 .. code-block:: console
 
-   (kinect_acquisition)$ jupyter notebook --no-browser --port=[YOUR PORT] /path/to/repository/
+   (kinect_acquisition)$ jupyter notebook --no-browser --port=8888 /path/to/repository/
 
 (tmux session can be quit with 'CTRL + b' then 'd')
 
