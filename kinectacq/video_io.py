@@ -245,13 +245,15 @@ def write_images(
             )
 
             if save_color:
-
-                color_pipe = write_frames(
-                    filename_prefix / "color.avi",
-                    color.astype(np.uint8)[None, :, :, :3],
-                    close_pipe=False,
-                    pipe=color_pipe,
-                    pixel_format="rgb24",
-                    video_dtype=np.uint8,
-                    **color_write_frames_kwargs
-                )
+                if color is None:
+                    print("color frame dropped")
+                else:
+                    color_pipe = write_frames(
+                        filename_prefix / "color.avi",
+                        color.astype(np.uint8)[None, :, :, :3],
+                        close_pipe=False,
+                        pipe=color_pipe,
+                        pixel_format="rgb24",
+                        video_dtype=np.uint8,
+                        **color_write_frames_kwargs
+                    )

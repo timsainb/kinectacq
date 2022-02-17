@@ -69,6 +69,7 @@ UBUNTU 20.04 (workaround, check the github page for the latest):
 
 BOTH: Install libraries
 ~~~~~~~~~~~~~~~~~~~~~~~
+Note: The k4a versions listed are the ones I used to install on Ubuntu 20.04. You can probably install the newest libraries without issue. 
 
 .. code-block:: console
 

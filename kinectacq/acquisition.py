@@ -22,7 +22,7 @@ from kinectacq.paths import ensure_dir
 def capture_from_azure(
     k4a,
     filename_prefix,
-    recording_length,
+    recording_duration,
     save_color=False,
     display_frames=False,
     display_time=False,
@@ -42,7 +42,7 @@ def capture_from_azure(
     Args:
         k4a (k4a object): Camera K4A object
         filename_prefix (pathlib2.path): File storage location
-        recording_length (float): [recording duration (seconds)]
+        recording_duration (float): [recording duration (seconds)]
         save_color (bool, optional): Whether to save the color data. Defaults to False.
         display_frames (bool, optional): Whether to display frames. Defaults to False.
         display_time (bool, optional): Whether to output time. Defaults to False.
@@ -53,6 +53,7 @@ def capture_from_azure(
         display_frequency (int, optional): How frequently to display frames. Defaults to 2
         display_time_frequency (int, optional): How frequently to display time. Defaults to 15
     """
+
     # initialize the queue to write images to videos
     image_queue = Queue()
     write_process = Process(
@@ -77,6 +78,9 @@ def capture_from_azure(
     # initialize K4A object
     k4a.start()
 
+    # announce that the camera has been successfully initialized
+    print("capture_from_azure initialized: {} ".format(filename_prefix.stem))
+
     # keep a list of timestamps
     system_timestamps = []
     device_timestamps = []
@@ -85,9 +89,13 @@ def capture_from_azure(
 
     try:
         # loop while computer time is less than recording length
-        while time.time() - start_time < recording_length:
+        while time.time() - start_time < recording_duration:
             # get output of device
             capture = k4a.get_capture()
+
+            if capture.depth is None:
+                print("Dropped frame")
+                continue
 
             # if there is no depth data, this frame is dropped, so skip it
             if capture.depth is None:
@@ -112,8 +120,9 @@ def capture_from_azure(
 
             # save color information
             if save_color:
-                color = capture.color.astype(np.uint8)
+                color = capture.color
                 if color is not None:
+                    color = color.astype(np.uint8)
                     if color_function is not None:
                         color = color_function(color)
 
@@ -142,7 +151,7 @@ def capture_from_azure(
                     "\rRecorded "
                     + repr(int(time.time() - start_time))
                     + " out of "
-                    + repr(recording_length)
+                    + repr(recording_duration)
                     + " seconds"
                 )
             count += 1
@@ -178,7 +187,7 @@ def capture_from_azure(
 
 def start_recording(
     filename_prefix,
-    recording_length,
+    recording_duration,
     devices={
         "master": {
             "id": "master",
@@ -189,12 +198,12 @@ def start_recording(
                 "wired_sync_mode": WiredSyncMode.MASTER,
             },
             "process_kwargs": {
+                "save_color": False,
                 "display_frames": True,
                 "display_time": False,
             },
         }
     },
-    save_color=False,
     ir_depth_dtype=np.uint8,
     ir_depth_write_frames_kwargs={
         "codec": "ffv1",  # "ffv1",
@@ -223,7 +232,7 @@ def start_recording(
 
     Args:
         filename_prefix (str): Prefix of filename
-        recording_length (int): Duration to record (seconds)
+        recording_duration (int): Duration to record (seconds)
         devices (dict): Dictionary of config info for each device
         depth_function (function): Function for processing depth data
         ir_function (function): Function for processing IR data
@@ -242,12 +251,14 @@ def start_recording(
         ensure_dir(filename_prefix / device_name)
 
         # save camera parameters
-        k4a_obj.start()
-        time.sleep(1)
-        k4a_obj.save_calibration_json(
-            filename_prefix / device_name / "calibration.json"
-        )
-        k4a_obj.stop()
+        if True:
+            k4a_obj.start()
+            time.sleep(1)
+
+            k4a_obj.save_calibration_json(
+                filename_prefix / device_name / "calibration.json"
+            )
+            k4a_obj.stop()
 
         # create a subprocess to run acqusition with that camera
         process_list.append(
@@ -256,7 +267,7 @@ def start_recording(
                 args=(
                     k4a_obj,
                     filename_prefix / device_name,
-                    recording_length,
+                    recording_duration,
                 ),
                 kwargs={
                     "display_frames": devices[device_name]["process_kwargs"][
@@ -265,12 +276,12 @@ def start_recording(
                     "display_time": devices[device_name]["process_kwargs"][
                         "display_time"
                     ],
+                    "save_color": devices[device_name]["process_kwargs"]["save_color"],
                     "depth_function": depth_function,
                     "ir_function": ir_function,
                     "ir_depth_dtype": ir_depth_dtype,
                     "ir_depth_write_frames_kwargs": ir_depth_write_frames_kwargs,
                     "color_write_frames_kwargs": color_write_frames_kwargs,
-                    "save_color": save_color,
                 },
             )
         )
