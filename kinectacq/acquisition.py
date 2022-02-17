@@ -23,15 +23,18 @@ def capture_from_azure(
     k4a,
     filename_prefix,
     recording_length,
+    save_color=False,
     display_frames=False,
     display_time=False,
     depth_function=None,
     ir_function=None,
+    color_function=None,
     display_resolution_downsample=2,
     display_frequency=2,
     display_time_frequency=15,
-    video_dtype=np.uint8,
-    write_frames_kwargs={},
+    ir_depth_dtype=np.uint8,
+    ir_depth_write_frames_kwargs={},
+    color_write_frames_kwargs={},
 ):
     """Continuously captures data from Azure Kinect camera and writes to frames.
 
@@ -40,8 +43,12 @@ def capture_from_azure(
         k4a (k4a object): Camera K4A object
         filename_prefix (pathlib2.path): File storage location
         recording_length (float): [recording duration (seconds)]
+        save_color (bool, optional): Whether to save the color data. Defaults to False.
         display_frames (bool, optional): Whether to display frames. Defaults to False.
         display_time (bool, optional): Whether to output time. Defaults to False.
+        depth_function (function, optional): Filtering/processing function for depth data. Defaults to None.
+        ir_function (function, optional): Filtering/processing function for ir data. Defaults to None.
+        color_function (function, optional): Filtering/processing function for color data. Defaults to None.
         display_resolution_downsample (int, optional): How much to downsample display resolution. Defaults to 2
         display_frequency (int, optional): How frequently to display frames. Defaults to 2
         display_time_frequency (int, optional): How frequently to display time. Defaults to 15
@@ -50,7 +57,14 @@ def capture_from_azure(
     image_queue = Queue()
     write_process = Process(
         target=write_images,
-        args=(image_queue, filename_prefix, video_dtype, write_frames_kwargs),
+        args=(
+            image_queue,
+            filename_prefix,
+            ir_depth_dtype,
+            save_color,
+            ir_depth_write_frames_kwargs,
+            color_write_frames_kwargs,
+        ),
     )
     write_process.start()
 
@@ -96,8 +110,18 @@ def capture_from_azure(
             if ir_function is not None:
                 ir = ir_function(ir)
 
+            # save color information
+            if save_color:
+                color = capture.color.astype(np.uint8)
+                if color is not None:
+                    if color_function is not None:
+                        color = color_function(color)
+
             # add IR and depth data to image queue, to save
-            image_queue.put((ir, depth))
+            if save_color:
+                image_queue.put((ir, depth, color))
+            else:
+                image_queue.put((ir, depth))
 
             # every n frames, write to display
             # TODO add freq as variable
@@ -170,10 +194,21 @@ def start_recording(
             },
         }
     },
-    video_dtype=np.uint8,
-    write_frames_kwargs={
-        "codec": "ffv1",
+    save_color=False,
+    ir_depth_dtype=np.uint8,
+    ir_depth_write_frames_kwargs={
+        "codec": "ffv1",  # "ffv1",
         "crf": 14,
+        "threads": 6,
+        "fps": 30,
+        "slices": 24,
+        "slicecrc": 1,
+        "frame_size": None,
+        "get_cmd": False,
+    },
+    color_write_frames_kwargs={
+        "codec": "h264",  # "ffv1",
+        "crf": 22,
         "threads": 6,
         "fps": 30,
         "slices": 24,
@@ -232,8 +267,10 @@ def start_recording(
                     ],
                     "depth_function": depth_function,
                     "ir_function": ir_function,
-                    "video_dtype": video_dtype,
-                    "write_frames_kwargs": write_frames_kwargs,
+                    "ir_depth_dtype": ir_depth_dtype,
+                    "ir_depth_write_frames_kwargs": ir_depth_write_frames_kwargs,
+                    "color_write_frames_kwargs": color_write_frames_kwargs,
+                    "save_color": save_color,
                 },
             )
         )

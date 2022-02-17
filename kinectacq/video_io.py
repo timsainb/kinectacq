@@ -183,8 +183,10 @@ def read_frames(
 def write_images(
     image_queue,
     filename_prefix,
-    _dtype=np.uint8,
-    write_frames_kwargs={},
+    ir_depth_dtype=np.uint8,
+    save_color=False,
+    ir_depth_write_frames_kwargs={},
+    color_write_frames_kwargs={},
 ):
     """Writes images from a multiprocessing queue to a video file
     using the write_frames function.
@@ -196,37 +198,60 @@ def write_images(
 
     depth_pipe = None
     ir_pipe = None
+    if save_color:
+        color_pipe = None
 
-    if _dtype == np.uint8:
+    if ir_depth_dtype == np.uint8:
         pixel_format = "gray8"
-    elif _dtype == np.uint16:
+    elif ir_depth_dtype == np.uint16:
         pixel_format = "gray16"
     else:
-        raise ValueError("format for dtype {} has not been defined".format(_dtype))
+        raise ValueError(
+            "format for dtype {} has not been defined".format(ir_depth_dtype)
+        )
 
     while True:
         data = image_queue.get()
         if len(data) == 0:
             depth_pipe.stdin.close()
             ir_pipe.stdin.close()
+            if save_color:
+                color_pipe.stdin.close()
             break
         else:
-            ir, depth = data
+            if save_color:
+                ir, depth, color = data
+            else:
+                ir, depth = data
+
             depth_pipe = write_frames(
                 filename_prefix / "depth.avi",
-                depth.astype(_dtype)[None, :, :],
+                depth.astype(ir_depth_dtype)[None, :, :],
                 close_pipe=False,
                 pipe=depth_pipe,
                 pixel_format=pixel_format,
-                video_dtype=_dtype,
-                **write_frames_kwargs
+                video_dtype=ir_depth_dtype,
+                **ir_depth_write_frames_kwargs
             )
+
             ir_pipe = write_frames(
                 filename_prefix / "ir.avi",
-                ir.astype(_dtype)[None, :, :],
+                ir.astype(ir_depth_dtype)[None, :, :],
                 close_pipe=False,
                 pipe=ir_pipe,
                 pixel_format=pixel_format,
-                video_dtype=_dtype,
-                **write_frames_kwargs
+                video_dtype=ir_depth_dtype,
+                **ir_depth_write_frames_kwargs
             )
+
+            if save_color:
+
+                color_pipe = write_frames(
+                    filename_prefix / "color.avi",
+                    color.astype(np.uint8)[None, :, :, :3],
+                    close_pipe=False,
+                    pipe=color_pipe,
+                    pixel_format="rgb24",
+                    video_dtype=np.uint8,
+                    **color_write_frames_kwargs
+                )
