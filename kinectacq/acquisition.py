@@ -4,6 +4,7 @@ Acquisition - functions for recording from azure
 
 import datetime, subprocess, numpy as np, time, sys
 from multiprocessing import Process, Queue
+from tqdm.auto import tqdm
 
 from pyk4a import (
     PyK4A,
@@ -32,6 +33,7 @@ def capture_from_azure(
     display_resolution_downsample=2,
     display_frequency=2,
     display_time_frequency=15,
+    samplerate=30,
     ir_depth_dtype=np.uint8,
     ir_depth_write_frames_kwargs={},
     color_write_frames_kwargs={},
@@ -52,6 +54,7 @@ def capture_from_azure(
         display_resolution_downsample (int, optional): How much to downsample display resolution. Defaults to 2
         display_frequency (int, optional): How frequently to display frames. Defaults to 2
         display_time_frequency (int, optional): How frequently to display time. Defaults to 15
+        samplerate (int, optional): Samplerate of camera in Hz. Defaults to 30
     """
 
     # initialize the queue to write images to videos
@@ -81,9 +84,14 @@ def capture_from_azure(
     # announce that the camera has been successfully initialized
     print("capture_from_azure initialized: {} ".format(filename_prefix.stem))
 
-    # keep a list of timestamps
-    system_timestamps = []
-    device_timestamps = []
+    # pre-allocate an array of timestamps (overallocate to ensure no errors)
+    n_samples = int(np.ceil(samplerate * (recording_duration * 1.5)))
+    system_timestamps = np.zeros(n_samples, dtype=np.uint64)
+    depth_timestamps = np.zeros(n_samples, dtype=np.uint64)
+    ir_timestamps = np.zeros(n_samples, dtype=np.uint64)
+    if save_color:
+        color_timestamps = np.zeros(n_samples, dtype=np.uint64)
+
     start_time = time.time()
     count = 0
 
@@ -93,38 +101,48 @@ def capture_from_azure(
             # get output of device
             capture = k4a.get_capture()
 
-            if capture.depth is None:
-                print("Dropped frame")
-                continue
-
             # if there is no depth data, this frame is dropped, so skip it
+            if capture.ir is None:
+                print("Dropped frame: ir")
+
             if capture.depth is None:
-                print("Dropped frame")
-                continue
+                print("Dropped frame: depth")
+
+            if save_color:
+                if capture.color is None:
+                    print("Dropped frame: color")
 
             # grab and save the timestamps for this frame
-            system_timestamps.append(time.time())
-            device_timestamps.append(capture.depth_timestamp_usec)
+            system_timestamps[count] = time.time_ns()
+            ir_timestamps[count] = capture._depth_timestamp_usec
+            depth_timestamps[count] = capture._ir_timestamp_usec
+            if save_color:
+                color_timestamps[count] = capture._color_timestamp_usec
 
             # grab depth data
             depth = capture.depth.astype(np.int16)
             ir = capture.ir.astype(np.uint16)
+            if save_color:
+                color = capture.color
 
             # preprocess depth data
-            if depth_function is not None:
+            if (depth is not None) & (depth_function is not None):
                 depth = depth_function(depth)
 
             # preprocess IR data
-            if ir_function is not None:
+            if (ir is not None) & (ir_function is not None):
                 ir = ir_function(ir)
 
             # save color information
             if save_color:
-                color = capture.color
                 if color is not None:
                     color = color.astype(np.uint8)
                     if color_function is not None:
                         color = color_function(color)
+
+            # get timestamps
+            if save_color:
+                capture._color_timestamp_usec
 
             # add IR and depth data to image queue, to save
             if save_color:
@@ -164,16 +182,16 @@ def capture_from_azure(
         k4a.stop()
 
         # save the system and device timestamps
-        system_timestamps = np.array(system_timestamps)
-        np.save(filename_prefix / "system_timestamps.npy", system_timestamps)
-        np.save(filename_prefix / "device_timestamps.npy", device_timestamps)
+        np.save(filename_prefix / "system_timestamps.npy", system_timestamps[:count])
+        np.save(filename_prefix / "depth_timestamps.npy", depth_timestamps[:count])
+        np.save(filename_prefix / "ir_timestamps.npy", ir_timestamps[:count])
+        if save_color:
+            np.save(filename_prefix / "color_timestamps.npy", color_timestamps)
 
+        nsec = (np.max(system_timestamps) - np.min(system_timestamps[:count])) * 1e-9
         # output the framerate info
-        print(
-            " - Frame rate = ",
-            len(system_timestamps)
-            / (system_timestamps.max() - system_timestamps.min()),
-        )
+        framerate = round(count / nsec, 4)
+        print("Framerate ({}):{}".format(filename_prefix.stem, framerate))
 
         # empty tuple tells write_images to save
         image_queue.put(tuple())
@@ -288,3 +306,9 @@ def start_recording(
 
     for p in process_list:
         p.start()
+
+    start_time = time.time()
+    with tqdm(total=recording_duration, desc="Recirding (s)") as pbar:
+        while time.time() - start_time < recording_duration:
+            time.sleep(1)
+            pbar.update(1)

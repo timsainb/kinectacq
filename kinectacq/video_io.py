@@ -1,5 +1,6 @@
 import datetime, subprocess, numpy as np, cv2, time, sys
 from multiprocessing import Process, Queue
+from tqdm.auto import tqdm
 
 
 def get_number_of_frames(filepath):
@@ -209,9 +210,15 @@ def write_images(
         raise ValueError(
             "format for dtype {} has not been defined".format(ir_depth_dtype)
         )
+    start_time = time.time()
+    frame_n = 0
 
     while True:
         data = image_queue.get()
+
+        ### TODO DELETE ME
+        print_frame_info = frame_n % 100 == 0
+
         if len(data) == 0:
             depth_pipe.stdin.close()
             ir_pipe.stdin.close()
@@ -224,36 +231,44 @@ def write_images(
             else:
                 ir, depth = data
 
-            depth_pipe = write_frames(
-                filename_prefix / "depth.avi",
-                depth.astype(ir_depth_dtype)[None, :, :],
-                close_pipe=False,
-                pipe=depth_pipe,
-                pixel_format=pixel_format,
-                video_dtype=ir_depth_dtype,
-                **ir_depth_write_frames_kwargs
-            )
+            if print_frame_info:
+                print(frame_n, "POST DATA", time.time() - start_time)
 
-            ir_pipe = write_frames(
-                filename_prefix / "ir.avi",
-                ir.astype(ir_depth_dtype)[None, :, :],
-                close_pipe=False,
-                pipe=ir_pipe,
-                pixel_format=pixel_format,
-                video_dtype=ir_depth_dtype,
-                **ir_depth_write_frames_kwargs
-            )
-
-            if save_color:
-                if color is None:
-                    print("color frame dropped")
-                else:
-                    color_pipe = write_frames(
-                        filename_prefix / "color.avi",
-                        color.astype(np.uint8)[None, :, :, :3],
+            if True:
+                # write image arrays
+                if depth is not None:
+                    depth_pipe = write_frames(
+                        filename_prefix / "depth.avi",
+                        depth.astype(ir_depth_dtype)[None, :, :],
                         close_pipe=False,
-                        pipe=color_pipe,
-                        pixel_format="rgb24",
-                        video_dtype=np.uint8,
-                        **color_write_frames_kwargs
+                        pipe=depth_pipe,
+                        pixel_format=pixel_format,
+                        video_dtype=ir_depth_dtype,
+                        **ir_depth_write_frames_kwargs
                     )
+                if ir is not None:
+                    ir_pipe = write_frames(
+                        filename_prefix / "ir.avi",
+                        ir.astype(ir_depth_dtype)[None, :, :],
+                        close_pipe=False,
+                        pipe=ir_pipe,
+                        pixel_format=pixel_format,
+                        video_dtype=ir_depth_dtype,
+                        **ir_depth_write_frames_kwargs
+                    )
+
+                if save_color:
+                    if color is not None:
+                        color_pipe = write_frames(
+                            filename_prefix / "color.avi",
+                            color.astype(np.uint8)[None, :, :, :3],
+                            close_pipe=False,
+                            pipe=color_pipe,
+                            pixel_format="rgb24",
+                            video_dtype=np.uint8,
+                            **color_write_frames_kwargs
+                        )
+            if print_frame_info:
+                print(frame_n, "POST COLOR", time.time() - start_time)
+
+        frame_n += 1
