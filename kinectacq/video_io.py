@@ -1,6 +1,5 @@
 import datetime, subprocess, numpy as np, cv2, time, sys
 from multiprocessing import Process, Queue
-from tqdm.auto import tqdm
 
 
 def get_number_of_frames(filepath):
@@ -188,6 +187,8 @@ def write_images(
     save_color=False,
     ir_depth_write_frames_kwargs={},
     color_write_frames_kwargs={},
+    pbar_device=None,
+    update_frequency=30,
 ):
     """Writes images from a multiprocessing queue to a video file
     using the write_frames function.
@@ -217,6 +218,7 @@ def write_images(
         data = image_queue.get()
 
         if len(data) == 0:
+            pbar_device.update(frame_n - pbar_device.n)
             depth_pipe.stdin.close()
             ir_pipe.stdin.close()
             if save_color:
@@ -261,8 +263,12 @@ def write_images(
                         video_dtype=np.uint8,
                         **color_write_frames_kwargs
                     )
-            # print frame writing info
-            if frame_n % 100 == 0:
-                print(frame_n, "frame written", time.time() - start_time)
+
+            # save progress in writing frames
+            if pbar_device is not None:
+                if frame_n % update_frequency == 0:
+                    _ = pbar_device.update(frame_n - pbar_device.n)
+                    # hack to display pbar (otherwise it won't update)
+                    sys.stdout.write("\r ")
 
         frame_n += 1

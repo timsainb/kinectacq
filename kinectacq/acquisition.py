@@ -37,6 +37,7 @@ def capture_from_azure(
     ir_depth_dtype=np.uint8,
     ir_depth_write_frames_kwargs={},
     color_write_frames_kwargs={},
+    pbar_device=None,
 ):
     """Continuously captures data from Azure Kinect camera and writes to frames.
 
@@ -68,6 +69,7 @@ def capture_from_azure(
             save_color,
             ir_depth_write_frames_kwargs,
             color_write_frames_kwargs,
+            pbar_device,
         ),
     )
     write_process.start()
@@ -164,14 +166,16 @@ def capture_from_azure(
 
             # every n frames, write the time on the notebook
             # TODO rewrite as status bar
-            if display_time and count % display_time_frequency == 0:
-                sys.stdout.write(
-                    "\rRecorded "
-                    + repr(int(time.time() - start_time))
-                    + " out of "
-                    + repr(recording_duration)
-                    + " seconds"
-                )
+            if False:
+                if display_time and count % display_time_frequency == 0:
+                    sys.stdout.write(
+                        "\rRecorded "
+                        + repr(int(time.time() - start_time))
+                        + " out of "
+                        + repr(recording_duration)
+                        + " seconds"
+                    )
+
             count += 1
 
     except OSError:
@@ -257,12 +261,19 @@ def start_recording(
     """
 
     process_list = []
+
     for device_name in devices:
 
         # Create a k4a object referencing master
         k4a_obj = PyK4A(
             Config(**devices[device_name]["pyk4a_config"]),
             device_id=devices[device_name]["id"],
+        )
+
+        # create a progress bar for monitoring frame writing
+        pbar_device = tqdm(
+            total=30 * recording_duration,
+            desc="{} (frames written)".format(device_name),
         )
 
         # ensure a directory exists for device
@@ -300,6 +311,7 @@ def start_recording(
                     "ir_depth_dtype": ir_depth_dtype,
                     "ir_depth_write_frames_kwargs": ir_depth_write_frames_kwargs,
                     "color_write_frames_kwargs": color_write_frames_kwargs,
+                    "pbar_device": pbar_device,
                 },
             )
         )
@@ -308,7 +320,7 @@ def start_recording(
         p.start()
 
     start_time = time.time()
-    with tqdm(total=recording_duration, desc="Recirding (s)") as pbar:
+    with tqdm(total=recording_duration, desc="Recording (s)") as pbar:
         while time.time() - start_time < recording_duration:
             time.sleep(1)
             pbar.update(1)
