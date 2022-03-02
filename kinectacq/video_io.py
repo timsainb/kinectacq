@@ -118,6 +118,8 @@ def write_frames(
             # preexec_fn=preexec_function,
         )
 
+    # write to image pipe, but if pipe is broken (usually because of an interrupt)
+    #   finish writing to a new file
     try:
         for i in range(frames.shape[0]):
             pipe.stdin.write(frames[i, :, :].astype(video_dtype).tobytes())

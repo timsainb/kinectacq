@@ -12,3 +12,5 @@ Documentation: https://kinectacq.readthedocs.io/en/latest/index.html
 - monitor queues for overflow
 - add tqdm to install
 - update docstrings with most recent info
+- save audio (see https://github.com/etiennedub/pyk4a/issues/102)
+
