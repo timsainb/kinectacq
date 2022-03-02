@@ -14,3 +14,4 @@ numpy
 matplotlib
 jupyter
 pathlib2
+tqdm

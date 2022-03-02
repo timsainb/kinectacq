@@ -320,7 +320,10 @@ def start_recording(
         p.start()
 
     start_time = time.time()
-    with tqdm(total=recording_duration, desc="Recording (s)") as pbar:
-        while time.time() - start_time < recording_duration:
-            time.sleep(1)
-            pbar.update(1)
+    try:
+        with tqdm(total=recording_duration, desc="Recording (s)") as pbar:
+            while time.time() - start_time < recording_duration:
+                time.sleep(1)
+                pbar.update(1)
+    except KeyboardInterrupt:
+        print("Exiting: KeyboardInterrupt")
