@@ -1,5 +1,5 @@
 import datetime, subprocess, numpy as np, cv2, time, sys
-from multiprocessing import Process, Queue
+from kinectacq.interrupt_handler import DelayedKeyboardInterrupt
 
 
 def get_number_of_frames(filepath):
@@ -11,6 +11,16 @@ def get_number_of_frames(filepath):
     )
     stdout, stderr = out.communicate()
     return int(stdout.decode("utf8").strip("\n"))
+
+
+import subprocess
+import signal
+
+
+def preexec_function():
+    # Ignore the SIGINT signal by setting the handler to the standard
+    # signal handler SIG_IGN.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def write_frames(
@@ -101,83 +111,43 @@ def write_frames(
         return command
 
     if not pipe:
-        pipe = subprocess.Popen(command, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        pipe = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            # preexec_fn=preexec_function,
+        )
 
-    for i in range(frames.shape[0]):
-        pipe.stdin.write(frames[i, :, :].astype(video_dtype).tobytes())
+    try:
+        for i in range(frames.shape[0]):
+            pipe.stdin.write(frames[i, :, :].astype(video_dtype).tobytes())
+    except BrokenPipeError:
+        # create a second file that can later be re-merged
+        command[-1] = command[-1].parent / (
+            command[-1].stem + "_repipe" + command[-1].suffix
+        )
+        print(
+            "Pipe broken for {}\n".format(command[-1].stem)
+            + "  continuing on to {}_repipe".format(command[-1].stem)
+        )
+        pipe = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            # preexec_fn=preexec_function,
+        )
+        for i in range(frames.shape[0]):
+            pipe.stdin.write(frames[i, :, :].astype(video_dtype).tobytes())
 
     if close_pipe:
+        print("pipe closed")
         pipe.stdin.close()
         return None
     else:
         return pipe
 
 
-def read_frames(
-    filename,
-    frames,
-    threads=6,
-    fps=30,
-    pixel_format="gray8",
-    frame_size=(640, 576),
-    slices=24,
-    slicecrc=1,
-    get_cmd=False,
-):
-    """Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
-
-    Args:
-        filename (str): filename to get frames from
-        frames (list or 1d numpy array): list of frames to grab
-        threads (int): number of threads to use for decode
-        fps (int): frame rate of camera in Hz
-        pixel_format (str): ffmpeg pixel format of data
-        frame_size (str): wxh frame size in pixels
-        slices (int): number of slices to use for decode
-        slicecrc (int): check integrity of slices
-    Returns:
-        3d numpy array:  frames x h x w
-    """
-
-    command = [
-        "ffmpeg",
-        "-loglevel",
-        "fatal",
-        "-ss",
-        str(datetime.timedelta(seconds=frames[0] / fps)),
-        "-i",
-        filename,
-        "-vframes",
-        str(len(frames)),
-        "-f",
-        "image2pipe",
-        "-s",
-        "{:d}x{:d}".format(frame_size[0], frame_size[1]),
-        "-pix_fmt",
-        pixel_format,
-        "-threads",
-        str(threads),
-        "-slices",
-        str(slices),
-        "-slicecrc",
-        str(slicecrc),
-        "-vcodec",
-        "rawvideo",
-        "-",
-    ]
-
-    if get_cmd:
-        return command
-
-    pipe = subprocess.Popen(command, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    out, err = pipe.communicate()
-    if err:
-        print("error", err)
-        return None
-    video = np.frombuffer(out, dtype="uint8").reshape(
-        (len(frames), frame_size[1], frame_size[0])
-    )
-    return video
+from threading import Thread
 
 
 def write_images(
@@ -217,7 +187,11 @@ def write_images(
     # create a note stating that this device is still
     np.save(file=filename_prefix / "is_writing", arr=[True])
 
+    # continue writing even if keyboard is interrupted
+    # with DelayedKeyboardInterrupt():
+    s = signal.signal(signal.SIGINT, signal.SIG_IGN)
     while True:
+        # try:
         data = image_queue.get()
 
         if len(data) == 0:
@@ -284,4 +258,7 @@ def write_images(
                     # hack to display pbar (otherwise it won't update)
                     sys.stdout.write("\r ")
 
-        frame_n += 1
+            frame_n += 1
+        # except Exception as e:
+        #    print("In write loop: {}".format(e))
+    signal.signal(signal.SIGINT, s)
