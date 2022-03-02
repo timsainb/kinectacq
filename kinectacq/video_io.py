@@ -214,6 +214,9 @@ def write_images(
     start_time = time.time()
     frame_n = 0
 
+    # create a note stating that this device is still
+    np.save(file=filename_prefix / "is_writing", arr=[True])
+
     while True:
         data = image_queue.get()
 
@@ -223,6 +226,16 @@ def write_images(
             ir_pipe.stdin.close()
             if save_color:
                 color_pipe.stdin.close()
+
+            # rewrite note
+            np.save(file=filename_prefix / "is_writing", arr=[False])
+            pbar_device.close()
+            print(
+                "Finished writing ({}): {}".format(
+                    filename_prefix.stem, datetime.datetime.now()
+                )
+            )
+
             break
         else:
             if save_color:

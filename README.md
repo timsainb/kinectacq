@@ -10,6 +10,5 @@ Documentation: https://kinectacq.readthedocs.io/en/latest/index.html
 ### TODO
 - keep track of frame numbers & machine time and store when they are dropped for color, IR, depth
 - monitor queues for overflow
-- update time tracking
 - add tqdm to install
 - update docstrings with most recent info

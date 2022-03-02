@@ -164,21 +164,9 @@ def capture_from_azure(
                     )
                 )
 
-            # every n frames, write the time on the notebook
-            # TODO rewrite as status bar
-            if False:
-                if display_time and count % display_time_frequency == 0:
-                    sys.stdout.write(
-                        "\rRecorded "
-                        + repr(int(time.time() - start_time))
-                        + " out of "
-                        + repr(recording_duration)
-                        + " seconds"
-                    )
-
             count += 1
 
-    except OSError:
+    except (OSError, KeyboardInterrupt):
         print("Recording stopped early")
 
     finally:
@@ -325,5 +313,7 @@ def start_recording(
             while time.time() - start_time < recording_duration:
                 time.sleep(1)
                 pbar.update(1)
+            pbar.close()
+        print("Finished recording: {}".format(datetime.datetime.now()))
     except KeyboardInterrupt:
         print("Exiting: KeyboardInterrupt")
