@@ -19,6 +19,8 @@ from kinectacq.video_io import write_images
 from kinectacq.visualization import display_images
 from kinectacq.paths import ensure_dir
 
+def identity(x):
+    return x
 
 def capture_from_azure(
     k4a,
@@ -34,8 +36,11 @@ def capture_from_azure(
     display_frequency=2,
     display_time_frequency=15,
     samplerate=30,
-    ir_depth_dtype=np.uint8,
-    ir_depth_write_frames_kwargs={},
+    depth_dtype=np.uint8,
+    ir_dtype=np.uint8,
+    ir_display_fcn=identity,
+    depth_write_frames_kwargs={},
+    ir_write_frames_kwargs={},
     color_write_frames_kwargs={},
     pbar_device=None,
 ):
@@ -65,9 +70,11 @@ def capture_from_azure(
         args=(
             image_queue,
             filename_prefix,
-            ir_depth_dtype,
+            ir_dtype,
+            depth_dtype,
             save_color,
-            ir_depth_write_frames_kwargs,
+            ir_write_frames_kwargs,
+            depth_write_frames_kwargs,
             color_write_frames_kwargs,
             pbar_device,
         ),
@@ -77,7 +84,7 @@ def capture_from_azure(
     # Initialize the queue to display images on screen
     if display_frames:
         display_queue = Queue()
-        display_process = Process(target=display_images, args=(display_queue,))
+        display_process = Process(target=display_images, args=(display_queue,ir_display_fcn))
         display_process.start()
 
     # initialize K4A object
@@ -214,8 +221,19 @@ def start_recording(
             },
         }
     },
-    ir_depth_dtype=np.uint8,
-    ir_depth_write_frames_kwargs={
+    ir_dtype=np.uint8,
+    depth_dtype=np.uint8,
+    ir_write_frames_kwargs={
+        "codec": "ffv1",  # "ffv1",
+        "crf": 14,
+        "threads": 6,
+        "fps": 30,
+        "slices": 24,
+        "slicecrc": 1,
+        "frame_size": None,
+        "get_cmd": False,
+    },
+    depth_write_frames_kwargs={
         "codec": "ffv1",  # "ffv1",
         "crf": 14,
         "threads": 6,
@@ -237,6 +255,7 @@ def start_recording(
     },
     depth_function=None,
     ir_function=None,
+    ir_display_fcn = identity, 
 ):
     """Runs a recording session by running a subprocess for each camera.
 
@@ -295,9 +314,12 @@ def start_recording(
                     ],
                     "save_color": devices[device_name]["process_kwargs"]["save_color"],
                     "depth_function": depth_function,
+                    "ir_display_fcn": ir_display_fcn,
                     "ir_function": ir_function,
-                    "ir_depth_dtype": ir_depth_dtype,
-                    "ir_depth_write_frames_kwargs": ir_depth_write_frames_kwargs,
+                    "depth_dtype": depth_dtype,
+                    "ir_dtype": ir_dtype,
+                    "depth_write_frames_kwargs": depth_write_frames_kwargs,
+                    "ir_write_frames_kwargs": ir_write_frames_kwargs,
                     "color_write_frames_kwargs": color_write_frames_kwargs,
                     "pbar_device": pbar_device,
                 },
