@@ -3,6 +3,7 @@ README.md
 setup.py
 kinectacq/__init__.py
 kinectacq/acquisition.py
+kinectacq/interrupt_handler.py
 kinectacq/paths.py
 kinectacq/video_io.py
 kinectacq/visualization.py

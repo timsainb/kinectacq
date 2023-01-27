@@ -117,7 +117,7 @@ def write_frames(
             stderr=subprocess.PIPE,
             # preexec_fn=preexec_function,
         )
-
+        
     # write to image pipe, but if pipe is broken (usually because of an interrupt)
     #   finish writing to a new file
     try:
@@ -148,16 +148,79 @@ def write_frames(
     else:
         return pipe
 
+def read_frames(
+    filename,
+    frames,
+    threads=6,
+    fps=30,
+    pixel_format="gray8",
+    frame_size=(640, 576),
+    slices=24,
+    slicecrc=1,
+    get_cmd=False,
+):
+    """Reads in frames from the .mp4/.avi file using a pipe from ffmpeg.
+    Args:
+        filename (str): filename to get frames from
+        frames (list or 1d numpy array): list of frames to grab
+        threads (int): number of threads to use for decode
+        fps (int): frame rate of camera in Hz
+        pixel_format (str): ffmpeg pixel format of data
+        frame_size (str): wxh frame size in pixels
+        slices (int): number of slices to use for decode
+        slicecrc (int): check integrity of slices
+    Returns:
+        3d numpy array:  frames x h x w
+    """
 
-from threading import Thread
+    command = [
+        "ffmpeg",
+        "-loglevel",
+        "fatal",
+        "-ss",
+        str(datetime.timedelta(seconds=frames[0] / fps)),
+        "-i",
+        filename,
+        "-vframes",
+        str(len(frames)),
+        "-f",
+        "image2pipe",
+        "-s",
+        "{:d}x{:d}".format(frame_size[0], frame_size[1]),
+        "-pix_fmt",
+        pixel_format,
+        "-threads",
+        str(threads),
+        "-slices",
+        str(slices),
+        "-slicecrc",
+        str(slicecrc),
+        "-vcodec",
+        "rawvideo",
+        "-",
+    ]
 
+    if get_cmd:
+        return command
+
+    pipe = subprocess.Popen(command, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    out, err = pipe.communicate()
+    if err:
+        print("error", err)
+        return None
+    video = np.frombuffer(out, dtype="uint16").reshape(
+        (len(frames), frame_size[1], frame_size[0])
+    )
+    return video
 
 def write_images(
     image_queue,
     filename_prefix,
-    ir_depth_dtype=np.uint8,
+    ir_dtype=np.uint8,
+    depth_dtype=np.uint8,
     save_color=False,
-    ir_depth_write_frames_kwargs={},
+    ir_write_frames_kwargs={},
+    depth_write_frames_kwargs={},
     color_write_frames_kwargs={},
     pbar_device=None,
     update_frequency=30,
@@ -175,13 +238,22 @@ def write_images(
     if save_color:
         color_pipe = None
 
-    if ir_depth_dtype == np.uint8:
-        pixel_format = "gray8"
-    elif ir_depth_dtype == np.uint16:
-        pixel_format = "gray16"
+    if depth_dtype == np.uint8:
+        depth_pixel_format = "gray8"
+    elif depth_dtype == np.uint16:
+        depth_pixel_format = "gray16"
     else:
         raise ValueError(
-            "format for dtype {} has not been defined".format(ir_depth_dtype)
+            "format for dtype {} has not been defined".format(depth_dtype)
+        )
+        
+    if ir_dtype == np.uint8:
+        ir_pixel_format = "gray8"
+    elif ir_dtype == np.uint16:
+        ir_pixel_format = "gray16"
+    else:
+        raise ValueError(
+            "format for dtype {} has not been defined".format(ir_dtype)
         )
     start_time = time.time()
     frame_n = 0
@@ -223,22 +295,22 @@ def write_images(
             if depth is not None:
                 depth_pipe = write_frames(
                     filename_prefix / "depth.avi",
-                    depth.astype(ir_depth_dtype)[None, :, :],
+                    depth.astype(depth_dtype)[None, :, :],
                     close_pipe=False,
                     pipe=depth_pipe,
-                    pixel_format=pixel_format,
-                    video_dtype=ir_depth_dtype,
-                    **ir_depth_write_frames_kwargs
+                    pixel_format=depth_pixel_format,
+                    video_dtype=depth_dtype,
+                    **depth_write_frames_kwargs
                 )
             if ir is not None:
                 ir_pipe = write_frames(
                     filename_prefix / "ir.avi",
-                    ir.astype(ir_depth_dtype)[None, :, :],
+                    ir.astype(ir_dtype)[None, :, :],
                     close_pipe=False,
                     pipe=ir_pipe,
-                    pixel_format=pixel_format,
-                    video_dtype=ir_depth_dtype,
-                    **ir_depth_write_frames_kwargs
+                    pixel_format=ir_pixel_format,
+                    video_dtype=ir_dtype,
+                    **ir_write_frames_kwargs
                 )
 
             if save_color:

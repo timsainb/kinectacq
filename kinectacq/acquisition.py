@@ -5,6 +5,7 @@ Acquisition - functions for recording from azure
 import datetime, subprocess, numpy as np, time, sys
 from multiprocessing import Process, Queue
 from tqdm.auto import tqdm
+import multiprocessing as mp
 
 from pyk4a import (
     PyK4A,
@@ -19,11 +20,17 @@ from kinectacq.video_io import write_images
 from kinectacq.visualization import display_images
 from kinectacq.paths import ensure_dir
 
+from kinectacq.visualization_tkinter import Display, MultiDisplay
+
+
+def identity(x):
+    return x
 
 def capture_from_azure(
     k4a,
     filename_prefix,
     recording_duration,
+    display_queue = None,
     save_color=False,
     display_frames=False,
     display_time=False,
@@ -34,10 +41,14 @@ def capture_from_azure(
     display_frequency=2,
     display_time_frequency=15,
     samplerate=30,
-    ir_depth_dtype=np.uint8,
-    ir_depth_write_frames_kwargs={},
+    depth_dtype=np.uint8,
+    ir_dtype=np.uint8,
+    display_fcn=identity,
+    depth_write_frames_kwargs={},
+    ir_write_frames_kwargs={},
     color_write_frames_kwargs={},
     pbar_device=None,
+    display = "ir"
 ):
     """Continuously captures data from Azure Kinect camera and writes to frames.
 
@@ -65,20 +76,22 @@ def capture_from_azure(
         args=(
             image_queue,
             filename_prefix,
-            ir_depth_dtype,
+            ir_dtype,
+            depth_dtype,
             save_color,
-            ir_depth_write_frames_kwargs,
+            ir_write_frames_kwargs,
+            depth_write_frames_kwargs,
             color_write_frames_kwargs,
             pbar_device,
         ),
     )
     write_process.start()
-
-    # Initialize the queue to display images on screen
-    if display_frames:
-        display_queue = Queue()
-        display_process = Process(target=display_images, args=(display_queue,))
-        display_process.start()
+    if display_queue is None:
+        # Initialize the queue to display images on screen
+        if display_frames:
+            display_queue = Queue()
+            display_process = Process(target=display_images, args=(display_queue,display_fcn, display=="depth"))
+            display_process.start()
 
     # initialize K4A object
     k4a.start()
@@ -122,8 +135,9 @@ def capture_from_azure(
                 color_timestamps[count] = capture._color_timestamp_usec
 
             # grab depth data
-            depth = capture.depth.astype(np.int16)
-            ir = capture.ir.astype(np.uint16)
+            depth = capture.depth
+            ir = capture.ir
+            
             if save_color:
                 color = capture.color
 
@@ -155,14 +169,26 @@ def capture_from_azure(
             # every n frames, write to display
             # TODO add freq as variable
             if display_frames and count % display_frequency == 0:
-                display_queue.put(
-                    (
-                        ir[
-                            ::display_resolution_downsample,
-                            ::display_resolution_downsample,
-                        ],
-                    )
-                )
+                if display == "ir":
+                    if ir is not None:
+                        display_queue.put(
+                            (
+                                ir[
+                                    ::display_resolution_downsample,
+                                    ::display_resolution_downsample,
+                                ],
+                            )
+                        )
+                else:
+                    if depth is not None:
+                        display_queue.put(
+                            (
+                                depth[
+                                    ::display_resolution_downsample,
+                                    ::display_resolution_downsample,
+                                ],
+                            )
+                        )
 
             count += 1
 
@@ -214,8 +240,19 @@ def start_recording(
             },
         }
     },
-    ir_depth_dtype=np.uint8,
-    ir_depth_write_frames_kwargs={
+    ir_dtype=np.uint8,
+    depth_dtype=np.uint8,
+    ir_write_frames_kwargs={
+        "codec": "ffv1",  # "ffv1",
+        "crf": 14,
+        "threads": 6,
+        "fps": 30,
+        "slices": 24,
+        "slicecrc": 1,
+        "frame_size": None,
+        "get_cmd": False,
+    },
+    depth_write_frames_kwargs={
         "codec": "ffv1",  # "ffv1",
         "crf": 14,
         "threads": 6,
@@ -237,6 +274,8 @@ def start_recording(
     },
     depth_function=None,
     ir_function=None,
+    display_fcn = identity, 
+    display = "ir"
 ):
     """Runs a recording session by running a subprocess for each camera.
 
@@ -249,6 +288,8 @@ def start_recording(
     """
 
     process_list = []
+    display_queues = []
+    camera_names = []
 
     for device_name in devices:
 
@@ -276,6 +317,12 @@ def start_recording(
                 filename_prefix / device_name / "calibration.json"
             )
             k4a_obj.stop()
+            
+        
+        # create a display queue
+        display_queue = mp.Queue()
+        camera_names.append(device_name)
+        display_queues.append(display_queue)
 
         # create a subprocess to run acqusition with that camera
         process_list.append(
@@ -287,22 +334,37 @@ def start_recording(
                     recording_duration,
                 ),
                 kwargs={
-                    "display_frames": devices[device_name]["process_kwargs"][
-                        "display_frames"
-                    ],
+                    #"display_frames": devices[device_name]["process_kwargs"][
+                    #    "display_frames"
+                    #],
+                    "display_frames": True,
                     "display_time": devices[device_name]["process_kwargs"][
                         "display_time"
                     ],
+                    "display_queue": display_queue,
                     "save_color": devices[device_name]["process_kwargs"]["save_color"],
                     "depth_function": depth_function,
+                    "display_fcn": display_fcn,
                     "ir_function": ir_function,
-                    "ir_depth_dtype": ir_depth_dtype,
-                    "ir_depth_write_frames_kwargs": ir_depth_write_frames_kwargs,
+                    "depth_dtype": depth_dtype,
+                    "ir_dtype": ir_dtype,
+                    "depth_write_frames_kwargs": depth_write_frames_kwargs,
+                    "ir_write_frames_kwargs": ir_write_frames_kwargs,
                     "color_write_frames_kwargs": color_write_frames_kwargs,
                     "pbar_device": pbar_device,
+                    "display": display,
                 },
             )
         )
+        
+    if len(display_queues) > 0:
+        # create a display process which recieves frames from the acquisition loops
+        disp = MultiDisplay(
+            display_queues,
+            camera_names,
+            display_downsample=1,
+        )
+        disp.start()
 
     for p in process_list:
         p.start()
@@ -317,3 +379,7 @@ def start_recording(
         print("Finished recording: {}".format(datetime.datetime.now()))
     except KeyboardInterrupt:
         print("Exiting: KeyboardInterrupt")
+        
+     # end display
+    if len(display_queues) > 0:
+        disp.join()

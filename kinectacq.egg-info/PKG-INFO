@@ -2,14 +2,10 @@ Metadata-Version: 2.1
 Name: kinectacq
 Version: 0.0.9
 Summary: A Python package test2
-Home-page: UNKNOWN
+Home-page: 
 Author: 
 Author-email: 
 License: MIT
-Platform: UNKNOWN
 Requires-Python: >=3.7
 Provides-Extra: docs
 License-File: LICENSE
-
-UNKNOWN
-

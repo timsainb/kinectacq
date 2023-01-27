@@ -8,3 +8,4 @@ numpydoc
 sphinxcontrib-napoleon
 opencv-python
 pathlib2
+tqdm
